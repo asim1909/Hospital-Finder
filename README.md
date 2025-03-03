@@ -34,7 +34,7 @@ A full-stack web application for managing and searching hospitals, built with th
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/<your-username>/hospital-finder.git
+git clone https://github.com/asim1909/Hospital-Finder.git
 cd hospital-finder
 ```
 
