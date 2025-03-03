@@ -10,8 +10,15 @@ const app = express();
 
 // Enable CORS
 app.use(cors({
-  origin: ['http://localhost:3001', 'https://hospital-finder.netlify.app'],
-  credentials: true
+  origin: [
+    'http://localhost:3001',
+    'http://localhost:5173',
+    'https://hospital-finder.netlify.app',
+    'https://hospital-finder-asim.netlify.app'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
@@ -19,12 +26,21 @@ app.use(express.json());
 // Log all requests
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
+  console.log('Request Headers:', req.headers);
   next();
 });
 
 // Root route handler
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to Hospital Finder API' });
+  res.json({ 
+    message: 'Welcome to Hospital Finder API',
+    status: 'ok',
+    endpoints: {
+      health: '/api/health',
+      hospitals: '/api/hospitals',
+      users: '/api/users'
+    }
+  });
 });
 
 // Health check endpoint
@@ -48,7 +64,14 @@ app.use('/api/users', userRoutes);
 // 404 handler
 app.use((req, res) => {
   console.log('404 Not Found:', req.method, req.url);
-  res.status(404).json({ message: 'Route not found' });
+  res.status(404).json({ 
+    message: 'Route not found',
+    availableEndpoints: {
+      health: '/api/health',
+      hospitals: '/api/hospitals',
+      users: '/api/users'
+    }
+  });
 });
 
 // Error handling middleware

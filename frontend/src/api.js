@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.PROD 
-  ? import.meta.env.VITE_PRODUCTION_API_URL 
-  : import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
+
+console.log('API URL:', API_URL); // Debug log
 
 // Create API instance
 let apiInstance = null;
@@ -45,7 +45,8 @@ const getApi = async () => {
           console.error('API Error:', {
             message: error.message,
             response: error.response?.data,
-            status: error.response?.status
+            status: error.response?.status,
+            url: error.config?.url
           });
           return Promise.reject(error);
         }
@@ -61,12 +62,12 @@ const getApi = async () => {
 // Export API functions
 export const login = async (credentials) => {
   const api = await getApi();
-  return api.post('/api/users/login', credentials);
+  return api.post('/users/login', credentials);
 };
 
 export const register = async (userData) => {
   const api = await getApi();
-  return api.post('/api/users/register', userData);
+  return api.post('/users/register', userData);
 };
 
 // Invitation-related API calls
@@ -88,33 +89,32 @@ export const useInvitation = async (code) => {
 // Hospital-related API calls
 export const getAllHospitals = async () => {
   const api = await getApi();
-  return api.get('/api/hospitals/all');
+  return api.get('/hospitals/all');
 };
 
 export const getHospitals = async (city) => {
   const api = await getApi();
-  return api.get(`/api/hospitals/city?city=${city}`);
+  return api.get(`/hospitals/city?city=${city}`);
 };
 
 export const getHospital = async (id) => {
   const api = await getApi();
-  return api.get(`/api/hospitals/${id}`);
+  return api.get(`/hospitals/${id}`);
 };
 
 export const createHospital = async (hospitalData) => {
   const api = await getApi();
-  console.log('Creating hospital with data:', hospitalData);
-  return api.post('/api/hospitals', hospitalData);
+  return api.post('/hospitals', hospitalData);
 };
 
 export const updateHospital = async (id, hospitalData) => {
   const api = await getApi();
-  return api.put(`/api/hospitals/${id}`, hospitalData);
+  return api.put(`/hospitals/${id}`, hospitalData);
 };
 
 export const deleteHospital = async (id) => {
   const api = await getApi();
-  return api.delete(`/api/hospitals/${id}`);
+  return api.delete(`/hospitals/${id}`);
 };
 
 export default getApi; 
