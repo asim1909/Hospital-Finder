@@ -1,6 +1,6 @@
-# Hospital Management System
+# Hospital Finder
 
-A full-stack web application for managing hospitals, built with the MERN stack (MongoDB, Express.js, React.js, Node.js).
+A full-stack web application for managing and searching hospitals, built with the MERN stack (MongoDB, Express.js, React.js, Node.js).
 
 ## Features
 
@@ -34,8 +34,8 @@ A full-stack web application for managing hospitals, built with the MERN stack (
 
 1. Clone the repository:
 ```bash
-git clone <your-repository-url>
-cd hospital-management-system
+git clone https://github.com/<your-username>/hospital-finder.git
+cd hospital-finder
 ```
 
 2. Install dependencies for both frontend and backend:
