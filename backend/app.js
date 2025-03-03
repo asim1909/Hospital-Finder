@@ -25,15 +25,18 @@ app.use(cors({
 
 app.use(express.json());
 
-// Log all requests
+// Log all requests with full URL
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
+  console.log(`${req.method} ${req.originalUrl}`);
   console.log('Request Headers:', req.headers);
   next();
 });
 
-// Root route handler - Must be before API routes
-app.get('/', (req, res) => {
+// Base router for all routes including root
+const baseRouter = express.Router();
+
+// Root route handler
+baseRouter.get('/', (req, res) => {
   console.log('Root route accessed');
   res.json({ 
     message: 'Welcome to Hospital Finder API',
@@ -46,11 +49,6 @@ app.get('/', (req, res) => {
       users: '/api/users'
     }
   });
-});
-
-// Serve favicon.ico
-app.get('/favicon.ico', (req, res) => {
-  res.status(204).end();
 });
 
 // API Routes
@@ -66,8 +64,14 @@ apiRouter.get('/health', (req, res) => {
 apiRouter.use('/hospitals', hospitalRoutes);
 apiRouter.use('/users', userRoutes);
 
-// Mount all API routes under /api
+// Mount all routes
+app.use('/', baseRouter);
 app.use('/api', apiRouter);
+
+// Serve favicon.ico
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
+});
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/hospital_db', { 
@@ -79,7 +83,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/hospital_
 
 // 404 handler - Must be after all other routes
 app.use((req, res) => {
-  console.log('404 Not Found:', req.method, req.url);
+  console.log('404 Not Found:', req.method, req.originalUrl);
   res.status(404).json({ 
     message: 'Route not found',
     availableEndpoints: {
@@ -100,7 +104,7 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log('Available routes:');
   console.log('- GET /');
