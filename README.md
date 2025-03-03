@@ -1,4 +1,4 @@
-# Hospital Management System
+# Hospital-Finder
 
 A full-stack web application for managing hospitals, built with the MERN stack (MongoDB, Express.js, React.js, Node.js).
 
