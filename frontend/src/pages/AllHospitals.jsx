@@ -15,7 +15,7 @@ function AllHospitals() {
     const fetchHospitals = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('http://localhost:5000/api/hospitals/all');
+        const response = await fetch('https://hospital-finder-backend-cjw1.onrender.com/api/hospitals/all');
         if (!response.ok) {
           throw new Error('Failed to fetch hospitals');
         }
@@ -50,7 +50,7 @@ function AllHospitals() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/hospitals/${hospitalId}`, {
+      const response = await fetch(`https://hospital-finder-backend-cjw1.onrender.com/api/hospitals/${hospitalId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
