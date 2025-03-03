@@ -32,24 +32,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// API Routes
-const apiRouter = express.Router();
-
-// Health check endpoint
-apiRouter.get('/health', (req, res) => {
-  console.log('Health check requested');
-  res.json({ status: 'ok', message: 'Server is running' });
-});
-
-// Mount API routes
-apiRouter.use('/hospitals', hospitalRoutes);
-apiRouter.use('/users', userRoutes);
-
-// Mount all API routes under /api
-app.use('/api', apiRouter);
-
-// Root route handler
+// Root route handler - Must be before API routes
 app.get('/', (req, res) => {
+  console.log('Root route accessed');
   res.json({ 
     message: 'Welcome to Hospital Finder API',
     status: 'ok',
@@ -68,6 +53,22 @@ app.get('/favicon.ico', (req, res) => {
   res.status(204).end();
 });
 
+// API Routes
+const apiRouter = express.Router();
+
+// Health check endpoint
+apiRouter.get('/health', (req, res) => {
+  console.log('Health check requested');
+  res.json({ status: 'ok', message: 'Server is running' });
+});
+
+// Mount API routes
+apiRouter.use('/hospitals', hospitalRoutes);
+apiRouter.use('/users', userRoutes);
+
+// Mount all API routes under /api
+app.use('/api', apiRouter);
+
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/hospital_db', { 
   useNewUrlParser: true, 
@@ -76,7 +77,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/hospital_
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// 404 handler
+// 404 handler - Must be after all other routes
 app.use((req, res) => {
   console.log('404 Not Found:', req.method, req.url);
   res.status(404).json({ 
