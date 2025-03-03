@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const hospitalRoutes = require('./routes/hospitalRoutes');
 const userRoutes = require('./routes/userRoutes');
+const path = require('path');
 
 dotenv.config();
 const app = express();
@@ -31,12 +32,30 @@ app.use((req, res, next) => {
   next();
 });
 
+// API Routes
+const apiRouter = express.Router();
+
+// Health check endpoint
+apiRouter.get('/health', (req, res) => {
+  console.log('Health check requested');
+  res.json({ status: 'ok', message: 'Server is running' });
+});
+
+// Mount API routes
+apiRouter.use('/hospitals', hospitalRoutes);
+apiRouter.use('/users', userRoutes);
+
+// Mount all API routes under /api
+app.use('/api', apiRouter);
+
 // Root route handler
 app.get('/', (req, res) => {
   res.json({ 
     message: 'Welcome to Hospital Finder API',
     status: 'ok',
+    version: '1.0.0',
     endpoints: {
+      api: '/api',
       health: '/api/health',
       hospitals: '/api/hospitals',
       users: '/api/users'
@@ -44,10 +63,9 @@ app.get('/', (req, res) => {
   });
 });
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  console.log('Health check requested');
-  res.json({ status: 'ok', message: 'Server is running' });
+// Serve favicon.ico
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
 });
 
 // MongoDB connection
@@ -58,16 +76,14 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/hospital_
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// Routes
-app.use('/api/hospitals', hospitalRoutes);
-app.use('/api/users', userRoutes);
-
 // 404 handler
 app.use((req, res) => {
   console.log('404 Not Found:', req.method, req.url);
   res.status(404).json({ 
     message: 'Route not found',
     availableEndpoints: {
+      root: '/',
+      api: '/api',
       health: '/api/health',
       hospitals: '/api/hospitals',
       users: '/api/users'
@@ -87,6 +103,7 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log('Available routes:');
   console.log('- GET /');
+  console.log('- GET /api');
   console.log('- GET /api/health');
   console.log('- POST /api/hospitals');
   console.log('- GET /api/hospitals');
