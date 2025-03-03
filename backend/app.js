@@ -6,7 +6,15 @@ const hospitalRoutes = require('./routes/hospitalRoutes');
 const userRoutes = require('./routes/userRoutes');
 const path = require('path');
 
+// Load environment variables
 dotenv.config();
+
+// Validate required environment variables
+if (!process.env.MONGODB_URI) {
+  console.error('MONGODB_URI environment variable is not set');
+  process.exit(1);
+}
+
 const app = express();
 
 // Enable CORS
@@ -73,13 +81,38 @@ app.get('/favicon.ico', (req, res) => {
   res.status(204).end();
 });
 
-// MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/hospital_db', { 
-  useNewUrlParser: true, 
-  useUnifiedTopology: true 
-})
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.error('MongoDB connection error:', err));
+// MongoDB connection with retry logic
+const connectDB = async (retries = 5) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      console.log(`MongoDB connection attempt ${i + 1} of ${retries}`);
+      console.log('Connecting to:', process.env.MONGODB_URI.replace(/mongodb\+srv:\/\/([^:]+):([^@]+)@/, 'mongodb+srv://***:***@'));
+      
+      await mongoose.connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      });
+      
+      console.log('MongoDB connected successfully');
+      return true;
+    } catch (err) {
+      console.error(`MongoDB connection attempt ${i + 1} failed:`, err.message);
+      if (i === retries - 1) {
+        console.error('All MongoDB connection attempts failed');
+        throw err;
+      }
+      // Wait for 5 seconds before retrying
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  }
+};
+
+// Connect to MongoDB
+connectDB()
+  .catch(err => {
+    console.error('Fatal: MongoDB connection error:', err);
+    process.exit(1);
+  });
 
 // 404 handler - Must be after all other routes
 app.use((req, res) => {
